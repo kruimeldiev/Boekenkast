@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: 
+  servlet:
+    multipart:
+      max-file-size: 
+springdoc:
+  default-produces-media-type: 
+
+server:
+  servlet:
+    context-path:

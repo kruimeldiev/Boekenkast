@@ -1,0 +1,30 @@
+services:
+  postgres:
+    container_name: 
+    image: postgres:
+    environment:
+      POSTGRES_USER: 
+      POSTGRES_PASSWORD: 
+      PGDATA: 
+      POSTGRES_DB: 
+    volumes:
+      - postgres:
+    ports:
+      - 
+    networks:
+      - 
+    restart: 
+  mail-dev:
+    container_name: 
+    image: 
+    ports:
+      - 
+      - 
+
+networks:
+  spring-network:
+    driver: 
+
+volumes:
+  postgres:
+    driver: 
