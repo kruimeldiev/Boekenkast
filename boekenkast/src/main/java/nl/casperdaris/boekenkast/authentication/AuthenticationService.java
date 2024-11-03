@@ -2,9 +2,13 @@ package nl.casperdaris.boekenkast.authentication;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import nl.casperdaris.boekenkast.email.EmailService;
 import nl.casperdaris.boekenkast.email.EmailTemplateName;
 import nl.casperdaris.boekenkast.role.RoleRepository;
+import nl.casperdaris.boekenkast.security.JwtService;
 import nl.casperdaris.boekenkast.user.Token;
 import nl.casperdaris.boekenkast.user.TokenRepository;
 import nl.casperdaris.boekenkast.user.User;
@@ -28,6 +33,8 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -80,5 +87,33 @@ public class AuthenticationService {
             sb.append(characters.charAt(secureRandom.nextInt(characters.length())));
         }
         return sb.toString();
+    }
+
+    public AuthenticateUserResponse authenticate(AuthenticateUserRequest authenticateUserRequest)
+            throws MessagingException {
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        authenticateUserRequest.getEmail(),
+                        authenticateUserRequest.getPassword()));
+        var claims = new HashMap<String, Object>();
+        var user = ((User) auth.getPrincipal());
+        claims.put("username", user.getUsername());
+        var jwtToken = jwtService.generateToken(claims, user);
+        return AuthenticateUserResponse.builder().token(jwtToken).build();
+
+    }
+
+    public void activateAccount(String token) throws MessagingException {
+        Token tokenEntity = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new IllegalStateException("Activation token not found"));
+        if (LocalDateTime.now().isAfter(tokenEntity.getExpiresAt())) {
+            throw new IllegalStateException("Activation token expired");
+        }
+        User user = userRepository.findById(tokenEntity.getUser().getId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        user.setEnabled(true);
+        userRepository.save(user);
+        tokenEntity.setValidatedAt(LocalDateTime.now());
+        tokenRepository.save(tokenEntity);
     }
 }

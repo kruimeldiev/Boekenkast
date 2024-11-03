@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
@@ -36,7 +37,7 @@ public class JwtService {
     /// Genereer een token op basis van user details met extra claims
     /// Extra claims zijn extra gegevens die aan het token kunnen worden toegevoegd,
     /// bijvoorbeeld specifieke gebruikersrechten of applicatie-informatie
-    private String generateToken(Map<String, Object> claims, UserDetails userDetails) {
+    public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
         return buildToken(claims, userDetails, jwtExpiration);
     }
 
@@ -104,7 +105,6 @@ public class JwtService {
 
     /// Genereer een nieuw token met een nieuwe vervaldatum
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 }
