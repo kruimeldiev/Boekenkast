@@ -1,5 +1,6 @@
 package nl.casperdaris.boekenkast.book;
 
+import java.beans.Transient;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -44,4 +45,12 @@ public class Book extends BaseEntity {
 
     @OneToMany(mappedBy = "book")
     private List<BookTransactionHistory> transactionHistory;
+
+    @Transient
+    public double getRating() {
+        if (feedback.isEmpty() || feedback == null) {
+            return 0;
+        }
+        return this.feedback.stream().mapToDouble(Feedback::getRating).average().orElse(0);
+    }
 }

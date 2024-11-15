@@ -11,7 +11,7 @@ import nl.casperdaris.boekenkast.role.Role;
 import nl.casperdaris.boekenkast.role.RoleRepository;
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @EnableAsync
 public class BoekenkastApiApplication {
 
