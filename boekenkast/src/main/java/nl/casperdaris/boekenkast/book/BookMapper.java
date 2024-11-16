@@ -2,6 +2,7 @@ package nl.casperdaris.boekenkast.book;
 
 import org.springframework.stereotype.Service;
 
+import nl.casperdaris.boekenkast.file.FileUtils;
 import nl.casperdaris.boekenkast.history.BookTransactionHistory;
 
 /// Deze klasse bevat de mappers voor het omzetten van boeken DTO's van en naar objecten voor de database.
@@ -30,7 +31,7 @@ public class BookMapper {
                 .isSharable(book.isSharable())
                 .isArchived(book.isArchived())
                 .owner(book.getOwner().getUsername())
-                // .coverUrl(book.getCoverUrl())
+                .coverUrl(FileUtils.readFileFromLocation(book.getCoverUrl()))
                 .rating(book.getRating())
                 .build();
     }

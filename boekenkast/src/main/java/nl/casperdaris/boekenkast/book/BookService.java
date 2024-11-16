@@ -8,11 +8,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import nl.casperdaris.boekenkast.common.PaginationResponse;
 import nl.casperdaris.boekenkast.exceptions.ForbiddenException;
+import nl.casperdaris.boekenkast.file.FileStorageService;
 import nl.casperdaris.boekenkast.history.BookTransactionHistory;
 import nl.casperdaris.boekenkast.history.BookTransactionHistoryRepository;
 import nl.casperdaris.boekenkast.user.User;
@@ -25,6 +27,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookTransactionHistoryRepository bookTransactionHistoryRepository;
     private final BookMapper bookMapper;
+    private final FileStorageService fileStorageService;
 
     public Integer createOrUpdateBook(BookRequest request, Authentication connectedUser) {
         User user = ((User) connectedUser.getPrincipal());
@@ -187,5 +190,14 @@ public class BookService {
                         "Book is not yet returned"));
         bookTransactionHistory.setReturnApprovedByOwner(true);
         return bookTransactionHistoryRepository.save(bookTransactionHistory).getId();
+    }
+
+    public void uploadBookCoverImage(MultipartFile file, Authentication connectedUser, Integer bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException("No book found with id " + bookId));
+        User user = ((User) connectedUser.getPrincipal());
+        var bookCoverImage = fileStorageService.uploadBookCoverImage(file, user.getId());
+        book.setCoverUrl(bookCoverImage);
+        bookRepository.save(book);
     }
 }
