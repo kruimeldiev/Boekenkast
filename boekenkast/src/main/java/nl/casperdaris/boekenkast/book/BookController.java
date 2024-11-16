@@ -3,6 +3,7 @@ package nl.casperdaris.boekenkast.book;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,4 +44,42 @@ public class BookController {
             Authentication connectedUser) {
         return ResponseEntity.ok(bookService.findAllBooks(page, size, connectedUser));
     }
+
+    @GetMapping("/owner")
+    public ResponseEntity<PaginationResponse<BookResponse>> getAllBooksByOwner(
+            @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) Integer size,
+            Authentication connectedUser) {
+        return ResponseEntity.ok(bookService.findAllBooksByOwner(page, size, connectedUser));
+    }
+
+    @GetMapping("/borrowed-books")
+    public ResponseEntity<PaginationResponse<BorrowedBookResponse>> getAllBorrowedBooks(
+            @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) Integer size,
+            Authentication connectedUser) {
+        return ResponseEntity.ok(bookService.findAllBorrowedBooks(page, size, connectedUser));
+    }
+
+    @GetMapping("/returned-books")
+    public ResponseEntity<PaginationResponse<BorrowedBookResponse>> getAllReturnedBooks(
+            @RequestParam(name = "page", defaultValue = "0", required = false) Integer page,
+            @RequestParam(name = "size", defaultValue = "10", required = false) Integer size,
+            Authentication connectedUser) {
+        return ResponseEntity.ok(bookService.findAllReturnedBooks(page, size, connectedUser));
+    }
+
+    @PatchMapping("/sharable/{book-id}")
+    public ResponseEntity<Integer> setSharableStatus(@PathVariable("book-id") Integer bookId,
+            Authentication connectedUser) {
+        return ResponseEntity.ok(bookService.setSharableStatus(bookId, connectedUser));
+    }
+
+    @PatchMapping("/archived/{book-id}")
+    public ResponseEntity<Integer> setArchivedStatus(@PathVariable("book-id") Integer bookId,
+            Authentication connectedUser) {
+        return ResponseEntity.ok(bookService.setArchivedStatus(bookId, connectedUser));
+    }
+
+    
 }

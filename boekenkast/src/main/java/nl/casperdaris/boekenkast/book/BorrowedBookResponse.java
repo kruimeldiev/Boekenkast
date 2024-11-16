@@ -6,21 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/// DTO voor het response object van een boek.
+/// DTO voor het response object van een geleend boek.
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BookResponse {
+public class BorrowedBookResponse {
+
     private Integer id;
     private String title;
     private String author;
     private String isbn;
-    private String synopsis;
-    private boolean isSharable;
-    private boolean isArchived;
-    private String owner;
-    private byte[] coverUrl;
     private double rating;
+    private boolean isReturnApprovedByOwner;
+    private boolean isReturned;
 }
